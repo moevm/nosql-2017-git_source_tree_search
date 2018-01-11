@@ -1,6 +1,6 @@
 # Git Source Tree Search
 
-**TODO:** some description.
+Description not ready.
 
 ## Installation
 
@@ -28,7 +28,7 @@
 9. Check Neo4j server status: `Invoke-Neo4j status`
 10. Now you can go to `localhost:7474`, sign up and change default Neo4j 
     password (user: `neo4j`, password: `neo4j`)
-11. Run your preffered command line and install virtualenv: 
+11. Run your preferred command line and install virtualenv:
     `pip install virtualenv`
 12. Go to project dir and create new virtualenv: `virtualenv venv`
 13. Activate your virtualenv: `.\venv\Scripts\activate`
@@ -44,5 +44,5 @@
 
 ### Example Debian 9 installation:
 
-Debian based linux installation fully discribed in official article on neo4j site:
+Debian based Neo4j installation fully described in official article on neo4j site:
 https://neo4j.com/docs/operations-manual/current/installation/linux/debian/
