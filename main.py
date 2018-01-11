@@ -16,11 +16,18 @@ def parse_arguments():
     init = subparsers.add_parser('init',
                                  help='create a new project node in the Neo4j database')
     init.set_defaults(command='init')
+
     init.add_argument('project_path',
                       action='store_const',
                       help='path to project',
-                      metavar='PROJECT_PATH',
                       const=os.getcwd())
+
+    init.add_argument('--virtualenv',
+                      action='store',
+                      nargs=1,
+                      help='virtual environment directory name',
+                      metavar='DIR_NAME',
+                      default='venv')
 
     status = subparsers.add_parser('status',
                                    help='show current project status')
@@ -35,6 +42,9 @@ def parse_arguments():
     if 'command' not in args:
         parser.print_help()
         exit()
+
+    if 'virtualenv' in args:
+        args['virtualenv'] = os.path.abspath(args['virtualenv'][0])
 
     return args
 
