@@ -30,7 +30,7 @@ def test_neo4j_connection():
         uri = "bolt://localhost:7687"
         user = environ["NEO4J_USERNAME"]
         password = environ["NEO4J_PASSWORD"]
-        print(uri, user, password)
+        print(uri, user)
         example = HelloWorldExample(uri, user, password)
         example.print_greeting("Hello, world!")
         example.close()

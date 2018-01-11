@@ -4,7 +4,7 @@ import os
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(prog='Git Source Tree Search',
+    parser = argparse.ArgumentParser(prog='gsts',
                                      allow_abbrev=False)
 
     parser.add_argument('-v', '--verbose',
@@ -34,6 +34,7 @@ def parse_arguments():
 
     if 'command' not in args:
         parser.print_help()
+        exit()
 
     return args
 
