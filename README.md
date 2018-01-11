@@ -44,4 +44,5 @@
 
 ### Example Debian 9 installation:
 
-**TODO:** some text. :(
+Debian based linux installation fully discribed in official article on neo4j site:
+https://neo4j.com/docs/operations-manual/current/installation/linux/debian/
