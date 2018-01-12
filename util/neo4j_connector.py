@@ -77,18 +77,79 @@ class Neo4j:
         with self._driver.session() as session:
             result = session.run(statement,
                                  repo_path=repo_path)
-            self._log.debug('Created: ' + str(result.single()))
+            self._log.debug('Repository created: ' + str(result.single()))
 
     def create_commit_node(self, repo_path, commit_hash):
         statement = 'MATCH ( r :Repository :GSTS { path: {repo_path} } ) ' \
-                    'CREATE ( r ) - [ i :Includes ] -> ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
+                    'CREATE ( r ) - [ i :INCLUDE ] -> ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
                     'RETURN r, i, c'
 
         with self._driver.session() as session:
             result = session.run(statement,
                                  repo_path=repo_path,
                                  commit_hash=commit_hash)
-            self._log.debug('Created: ' + str(list(result.records())))
+            self._log.debug('Commit created: ' + str(result.single()))
+
+    def create_source_file(self, repo_path, commit_hash, file_path, file_status):
+        statement = 'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
+                    'CREATE ( c ) - [ i :INCLUDE ] -> ' \
+                    '       ( s :Source :GSTS { path: {file_path}, status: {file_status} } ) ' \
+                    'RETURN c, i, s'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path,
+                                 commit_hash=commit_hash,
+                                 file_path=file_path,
+                                 file_status=file_status)
+            self._log.debug('Source created: ' + str(result.single()))
+
+    def create_test_file(self, repo_path, commit_hash, file_path, file_status):
+        statement = 'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
+                    'CREATE ( c ) - [ i :INCLUDE ] -> ' \
+                    '       ( t :Test :GSTS { path: {file_path}, status: {file_status} } ) ' \
+                    'RETURN c, i, t'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path,
+                                 commit_hash=commit_hash,
+                                 file_path=file_path,
+                                 file_status=file_status)
+            self._log.debug('Source created: ' + str(result.single()))
+
+    def create_import_relationship(self, repo_path, commit_hash, test_path, source_path):
+        statement = 'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( :Commit :GSTS { hash: {commit_hash} } ) - [ :INCLUDE ] -> ' \
+                    '      ( t :Test :GSTS { path: {test_path} } ) ' \
+                    'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( :Commit :GSTS { hash: {commit_hash} } ) - [ :INCLUDE ] -> ' \
+                    '      ( s :Source :GSTS { path: {source_path} } ) ' \
+                    'CREATE ( t ) - [ i :IMPORT ] -> ( s ) ' \
+                    'RETURN t, i, s'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path,
+                                 commit_hash=commit_hash,
+                                 test_path=test_path,
+                                 source_path=source_path)
+            self._log.debug('Import relationship added: ' + str(result.single()))
+
+    def delete_commit_node(self, repo_path, commit_hash):
+        statement = 'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( c :Commit :GSTS { hash: {commit_hash} } ) - [ :INCLUDE ] -> ' \
+                    '      ( f :GSTS ) ' \
+                    'DETACH DELETE c, f'
+
+        with self._driver.session() as session:
+            session.run(statement,
+                        repo_path=repo_path,
+                        commit_hash=commit_hash)
+            self._log.debug('Delete commit <{commit_hash}> and it\'s source and test files'
+                            .format(commit_hash=commit_hash))
 
     def return_all(self):
         statement = 'MATCH ( n :GSTS ) ' \
