@@ -70,6 +70,17 @@ class Neo4j:
         self.close()
         self._log.debug('__exit__()')
 
+    def has_repository_node(self, repo_path):
+        statement = 'MATCH ( r :Repository :GSTS { path: {repo_path} } ) ' \
+                    'RETURN r'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path)
+            records_count = len(list(result.records()))
+            self._log.debug('Found ' + str(records_count) + ' repository records')
+            return records_count > 0
+
     def create_repository_node(self, repo_path):
         statement = 'CREATE ( r :Repository :GSTS { path: {repo_path} } ) ' \
                     'RETURN r'
@@ -78,6 +89,19 @@ class Neo4j:
             result = session.run(statement,
                                  repo_path=repo_path)
             self._log.debug('Repository created: ' + str(result.single()))
+
+    def has_commit_node(self, repo_path, commit_hash):
+        statement = 'MATCH ( :Repository :GSTS { path: {repo_path} } ) - [ :INCLUDE ] -> ' \
+                    '      ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
+                    'RETURN c'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path,
+                                 commit_hash=commit_hash)
+            records_count = len(list(result.records))
+            self._log.debug('Found ' + str(records_count) + ' commit records')
+            return records_count > 0
 
     def create_commit_node(self, repo_path, commit_hash):
         statement = 'MATCH ( r :Repository :GSTS { path: {repo_path} } ) ' \
