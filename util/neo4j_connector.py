@@ -79,6 +79,17 @@ class Neo4j:
                                  repo_path=repo_path)
             self._log.debug('Created: ' + str(result.single()))
 
+    def create_commit_node(self, repo_path, commit_hash):
+        statement = 'MATCH ( r :Repository :GSTS { path: {repo_path} } ) ' \
+                    'CREATE ( r ) - [ i :Includes ] -> ( c :Commit :GSTS { hash: {commit_hash} } ) ' \
+                    'RETURN r, i, c'
+
+        with self._driver.session() as session:
+            result = session.run(statement,
+                                 repo_path=repo_path,
+                                 commit_hash=commit_hash)
+            self._log.debug('Created: ' + str(list(result.records())))
+
     def return_all(self):
         statement = 'MATCH ( n :GSTS ) ' \
                     'RETURN n'
